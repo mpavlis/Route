@@ -5,7 +5,7 @@
 # Author: Michalis Pavlis                                                                                               #
 # Licence: MIT                                                                                                          #
 #                                                                                                                       #
-# road_to_graph: Function to create a sparse graph representation (directed, undirected) of the road network            #
+# road_to_graph: Function to create a graph representation (directed, undirected) of the road network                   #
 #                                                                                                                       #
 # is_connected: Function to clean the road network by identifying the self-connected line segments                      #
 #                                                                                                                       #
@@ -214,7 +214,7 @@ is_connected <- function(road_sf, geom_column, allpoints = T, area_id = NULL, co
 #                                                Shortest Route                                                         #
 #########################################################################################################################
 
-shortest_route <- function(origins_sf, destinations_sf, road_graph, geometry_column = "geometry", join_by = NULL, lookup_table = NULL, cores_nr = 1){
+shortest_route_cost <- function(origins_sf, destinations_sf, road_graph, geometry_column = "geometry", join_by = NULL, lookup_table = NULL, cores_nr = 1){
   
   ##### 1. Function #####################################################################################################
   
