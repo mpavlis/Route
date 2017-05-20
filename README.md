@@ -35,7 +35,7 @@ Returns: A boolean vector, True denotes connected, False denotes not connected.
 
 ### Function 3: shortest_route_cost
 
-Description: Function to calculate the cost of the shortest path between an origin point or group of origin points and a destination point or group of destination points. The cost can be either distance (kilometres) or time (minutes).
+Description: Function to calculate the cost of the shortest path between unique origin points or groups of origin points and unique destination points or groups of destination points. The cost can be either distance (kilometres) or time (minutes).
 
 7 arguments: origins_sf (required), destinations_sf (required), road_graph (required), geometry_column (not required), join_by (not required), lookup_table (not required), cores_nr (not required).
 
