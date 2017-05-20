@@ -1,6 +1,6 @@
 # Route.r
 
-The script provides functions to create a graph representation of the road network, to clean the road network by identifying the self connected line segments and to calculate the shortest path cost either in kilometres or minutes.
+The script provides functions to create a graph representation of the road network, to clean the road network by identifying the self-connected line segments and to calculate the shortest path cost either in kilometres or minutes.
 
 ### Function 1: road_to_graph
 
