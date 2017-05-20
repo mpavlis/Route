@@ -33,7 +33,7 @@ Description: Function to identify the self-connected linestrings of the road net
 
 Returns: A boolean vector, True denotes connected, False denotes not connected.
 
-### Function 3: shortest_path
+### Function 3: shortest_route_cost
 
 Description: Function to calculate the cost of the shortest path between an origin point or group of origin points and a destination point or group of destination points. The cost can be either distance (kilometres) or time (minutes).
 
