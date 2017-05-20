@@ -10,7 +10,7 @@ Description: This function is used to create a graph representation of the road 
 
 - road_sf: The road network, it should be an object of class 'sf'.
 - geom_column: Character, the name of the geometry column, the column itself should be of class 'sfc_linestring' and in a projected reference system.
-- allpoints: Boolean (default value is True), if True all the points of the linestrings are used to create the graph representation of the road network, if False only the endpoints are used.
+- allpoints: Boolean (default value is True), if True all the points of the linestrings are used to create the graph representation of the road network, if False only the endpoints are used. If the graph will be used as input for the shortest_route_cost function you should want to set allpoints equal to True.
 - area_id: Character (default NULL), column name of the road_sf dataset, the values of the column can be either numeric or character and will be used as graph attribute. In the case of a study area consisting of unconnected subareas the column values should identify the subareas that the linestrings of the road netwrok intersect with. It can be used by the is_connected function.
 - weighted_graph: Boolean (default is False), if True the length (in kilometres) of the linestrings of the road network is used as graph attribute.
 - speed_limit_column: Character (default NULL), column name of the road_sf dataset. The column should provide the speed limits of the road network in kilometers/hour.
@@ -27,7 +27,7 @@ Description: Function to identify the self-connected linestrings of the road net
 
 - road_sf: The road network, it should be an object of class 'sf'.
 - geom_column: Character, the name of the geometry column, the column itself should be of class 'sfc_linestring' and in a projected reference system.
-- allpoints: Boolean (default value is True), if True all the points of the linestrings are used to create the graph representation of the road network, if False only the endpoints are used. Set allpoints to False if the road network is topologically correct and the linestrings are connected at the endpoints. Otherwise (if you are using the OSM road network for example) use the default value (True). If the graph will be used as input for the shortest_route_cost function allways set allpoints equal to True.
+- allpoints: Boolean (default value is True), if True all the points of the linestrings are used to create the graph representation of the road network, if False only the endpoints are used. Set allpoints to False if the road network is topologically correct and the linestrings are connected at the endpoints. Otherwise (if you are using the OSM road network for example) use the default value (True).
 - area_id: Character (default NULL), column name of the road_sf dataset, the values of the column can be either numeric or character and will be used as graph attribute. In the case of a study area consisting of unconnected subareas the column values should identify the subareas that the linestrings of the road netwrok intersect with.
 - cores_nr: Integer (default 1). The number of processor cores to use. The mclapply function of the parallel library is used to process the data in parallel, therefore it can only be used in Unix systems. The more cores are used the more memory is required.
 
