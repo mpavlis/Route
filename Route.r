@@ -9,7 +9,7 @@
 #                                                                                                                       #
 # is_connected: Function to clean the road network by identifying the self-connected line segments                      #
 #                                                                                                                       #
-# shortest_route: Function to calculate the shortest route cost either in kilometres or minutes                         #
+# shortest_route_cost: Function to calculate the shortest route cost either in kilometres or minutes                    #
 #                                                                                                                       #
 #########################################################################################################################
 
@@ -46,12 +46,12 @@ check_line <- function(sf_df, geom_column){
   } 
 }
 
-check_shortest_route <- function(origins_sf, destinations_sf, geometry_column, road_graph, lookup_table, join_by){
+check_shortest_route <- function(origins_sf, destinations_sf, geom_column, road_graph, lookup_table, join_by){
   
-  check_sf(origins_sf, geometry_column)
+  check_sf(origins_sf, geom_column)
   if (! is(origins_sf$geometry, "sfc_POINT")) stop("the class of the geometry column in origins_sf should be 'sfc_POINT'")
   
-  check_sf(destinations_sf, geometry_column)
+  check_sf(destinations_sf, geom_column)
   if (! is(destinations_sf$geometry, "sfc_POINT")) stop("the class of the geometry column in destinations_sf should be 'sfc_POINT'")
   
   if (! identical(st_crs(origins_sf)$proj4string, st_crs(destinations_sf)$proj4string)){
@@ -76,6 +76,9 @@ check_shortest_route <- function(origins_sf, destinations_sf, geometry_column, r
     if (!any(unique(destinations_sf$id) %in% unique(lookup_table[,2]))){
       stop("there are no matching values between the id field in destinations_sf and the second column in lookup_table")
     }
+    if (!is.null(join_by)){
+      warning("both lookup_table and join_by were provided, ignoring join_by")
+    }
   }
   
   if (!is.null(join_by)){
@@ -86,7 +89,7 @@ check_shortest_route <- function(origins_sf, destinations_sf, geometry_column, r
       stop(paste("the field", join_by, "was not found in destinations_sf"))
     }
     if (! any(origins_sf[[join_by]] %in% destinations_sf[[join_by]])){
-      stop(paste("you are trying to join origins_sf and destinations_sf by", join_by, "but there are no common values in the two datasets"))
+      stop(paste("you are trying to join origins_sf and destinations_sf by", join_by, "but there are no common values"))
     }
   }
 }
@@ -211,10 +214,10 @@ is_connected <- function(road_sf, geom_column, allpoints = T, area_id = NULL, co
 
 
 #########################################################################################################################
-#                                                Shortest Route                                                         #
+#                                                Shortest Route Cost                                                    #
 #########################################################################################################################
 
-shortest_route_cost <- function(origins_sf, destinations_sf, road_graph, geometry_column = "geometry", join_by = NULL, lookup_table = NULL, cores_nr = 1){
+shortest_route_cost <- function(origins_sf, destinations_sf, road_graph, geom_column, join_by = NULL, lookup_table = NULL, cores_nr = 1){
   
   ##### 1. Function #####################################################################################################
   
@@ -241,7 +244,7 @@ shortest_route_cost <- function(origins_sf, destinations_sf, road_graph, geometr
   
   ##### 2. Check inputs #################################################################################################
   
-  check_shortest_route(origins_sf, destinations_sf, geometry_column, road_graph, lookup_table, join_by)
+  check_shortest_route(origins_sf, destinations_sf, geom_column, road_graph, lookup_table, join_by)
   
   if (nrow(origins_sf) > nrow(destinations_sf) & !is_directed(road_graph) & !is.null(lookup_table)){
     origin_points <- destinations_sf
@@ -258,8 +261,8 @@ shortest_route_cost <- function(origins_sf, destinations_sf, road_graph, geometr
   # Map origin and destination nodes to closest nodes
   setDT(origin_points)
   setDT(destination_points)
-  origin_points[, origins_node_id := get.knnx(road_vertices, do.call(rbind, unclass(origin_points[[geometry_column]])), 1)$nn.index[,1]]
-  destination_points[, destinations_node_id := get.knnx(road_vertices, do.call(rbind, unclass(destination_points[[geometry_column]])), 1)$nn.index[,1]]
+  origin_points[, origins_node_id := get.knnx(road_vertices, do.call(rbind, unclass(origin_points[[geom_column]])), 1)$nn.index[,1]]
+  destination_points[, destinations_node_id := get.knnx(road_vertices, do.call(rbind, unclass(destination_points[[geom_column]])), 1)$nn.index[,1]]
   
   V(road_graph)$name <- seq_along(V(road_graph))
   
@@ -268,10 +271,10 @@ shortest_route_cost <- function(origins_sf, destinations_sf, road_graph, geometr
   setkey(origin_points, id)
   setkey(destination_points, id)
   
-  if (!is.null(join_by)){
-    out_DT <- origin_points[, unique(id), keyby = join_by][destination_points[, unique(id), keyby = join_by], on = join_by, allow.cartesian = T]
-  } else if (!is.null(lookup_table)){
+  if (!is.null(lookup_table)){
     out_DT <- as.data.table(lookup_table)
+  } else  if (!is.null(join_by)){
+    out_DT <- origin_points[, unique(id), keyby = join_by][destination_points[, unique(id), keyby = join_by], on = join_by, allow.cartesian = T]
   } else {
     unique_origins <- unique(origin_points$id)
     unique_destinations <- unique(destination_points$id)
