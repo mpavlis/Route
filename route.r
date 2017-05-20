@@ -23,18 +23,18 @@ library(parallel)
 #                                           Check functions' arguments                                                  #
 #########################################################################################################################
 
-check_values <- function(sf_df, column_name){
+.check_values <- function(sf_df, column_name){
   if (any(is.na(sf_df[[column_name]]))) stop(paste("NA values were found in column", column_name))
   if (any(is.null(sf_df[[column_name]]))) stop(paste("NULL values were found in column", column_name))
 }
 
-check_sf <- function(sf_df, geom_column){
+.check_sf <- function(sf_df, geom_column){
   
   if (! is(sf_df, "sf")) stop("object class should be 'sf'")
   
   if (! geom_column %in% names(sf_df)) stop("provide geometry column")
   
-  check_values(sf_df, geom_column)
+  .check_values(sf_df, geom_column)
   
   p4str <- st_crs(sf_df)$proj4string
   if (is.na(p4str) || !nzchar(p4str)) stop("specify coordinate reference system")
@@ -44,9 +44,9 @@ check_sf <- function(sf_df, geom_column){
   
 }
 
-check_line <- function(sf_df, geom_column){
+.check_line <- function(sf_df, geom_column){
   
-  check_sf(sf_df, geom_column)
+  .check_sf(sf_df, geom_column)
   
   if (!is(sf_df[[geom_column]], "sfc_LINESTRING")){
     stop("the geometry column class should be 'sfc_LINESTRING'")
@@ -54,9 +54,9 @@ check_line <- function(sf_df, geom_column){
   
 }
 
-check_is_connected <- function(road_sf, geom_column, allpoints, area_id){
+.check_is_connected <- function(road_sf, geom_column, allpoints, area_id){
   
-  check_line(road_sf, geom_column)
+  .check_line(road_sf, geom_column)
   
   if (! allpoints %in% c(T, F)) stop("allpoints should be either True or False")
   
@@ -67,10 +67,10 @@ check_is_connected <- function(road_sf, geom_column, allpoints, area_id){
   
 }
 
-check_road_to_graph <- function(road_sf, geom_column, allpoints, area_id, weighted_graph,
+.check_road_to_graph <- function(road_sf, geom_column, allpoints, area_id, weighted_graph,
                                 speed_limit_column, direction_column, direction_lookup) {
   
-  check_is_connected(road_sf, geom_column, allpoints, area_id)
+  .check_is_connected(road_sf, geom_column, allpoints, area_id)
   
   if (! allpoints %in% c(T, F)) stop("allpoints should either be True or False")
   
@@ -79,12 +79,12 @@ check_road_to_graph <- function(road_sf, geom_column, allpoints, area_id, weight
   if (!is.null(speed_limit_column)){
     if (! speed_limit_column %in% names(road_sf)) stop(paste("the column", speed_limit_column, "was not found in road_sf"))
     if (! is(road_sf[[speed_limit_column]], "numeric")) stop("the class of the speed limit column should be numeric")
-    check_values(road_sf, speed_limit_column)
+    .check_values(road_sf, speed_limit_column)
   }
   
   if (!is.null(direction_column)){
     if (! direction_column %in% names(road_sf)) stop(paste("the column", direction_column, "was not found in road_sf"))
-    check_values(road_sf, direction_column)
+    .check_values(road_sf, direction_column)
     if (length(unique(road_sf[[direction_column]])) != 3) stop(paste("only three values are expected in column", direction_column, "that represent back, forward and both traffic direction"))
     if (! length(direction_lookup[[1]]) == 3) stop("provide exactly three values for the first vector in the direction_lookup list: forward, opposite and both")
     if (! length(direction_lookup[[2]]) == 3) stop("provide exactly three values for the second vector in the direction_lookup list")
@@ -94,12 +94,12 @@ check_road_to_graph <- function(road_sf, geom_column, allpoints, area_id, weight
 }
 
 
-check_shortest_route <- function(origins_sf, destinations_sf, geom_column, road_graph, lookup_table, join_by){
+.check_shortest_route <- function(origins_sf, destinations_sf, geom_column, road_graph, lookup_table, join_by){
   
-  check_sf(origins_sf, geom_column)
+  .check_sf(origins_sf, geom_column)
   if (! is(origins_sf$geometry, "sfc_POINT")) stop("the class of the geometry column in origins_sf should be 'sfc_POINT'")
   
-  check_sf(destinations_sf, geom_column)
+  .check_sf(destinations_sf, geom_column)
   if (! is(destinations_sf$geometry, "sfc_POINT")) stop("the class of the geometry column in destinations_sf should be 'sfc_POINT'")
   
   if (! identical(st_crs(origins_sf)$proj4string, st_crs(destinations_sf)$proj4string)){
@@ -111,10 +111,10 @@ check_shortest_route <- function(origins_sf, destinations_sf, geom_column, road_
   }
   
   if (! "id" %in% names(origins_sf)) stop("provide id field for origins_sf")
-  check_values(origins_sf, "id")
+  .check_values(origins_sf, "id")
   
   if (! "id" %in% names(destinations_sf)) stop("provide id field for destinations_sf")
-  check_values(destinations_sf, "id")
+  .check_values(destinations_sf, "id")
   
   if (!is.null(lookup_table)){
     if (ncol(lookup_table) != 2){
@@ -126,8 +126,8 @@ check_shortest_route <- function(origins_sf, destinations_sf, geom_column, road_
     if (!any(unique(destinations_sf$id) %in% unique(lookup_table[,2]))){
       stop("there are no matching values between the id field in destinations_sf and the second column in lookup_table")
     }
-    check_values(lookup_table, colnames(lookup_table)[1])
-    check_values(lookup_table, colnames(lookup_table)[2])
+    .check_values(lookup_table, colnames(lookup_table)[1])
+    .check_values(lookup_table, colnames(lookup_table)[2])
     if (!is.null(join_by)){
       warning("both lookup_table and join_by were provided, ignoring join_by")
     }
@@ -143,8 +143,8 @@ check_shortest_route <- function(origins_sf, destinations_sf, geom_column, road_
     if (! any(origins_sf[[join_by]] %in% destinations_sf[[join_by]])){
       stop(paste("you are trying to join origins_sf and destinations_sf by", join_by, "but there are no common values"))
     }
-    check_values(origins_sf, join_by)
-    check_values(destinations_sf, join_by)
+    .check_values(origins_sf, join_by)
+    .check_values(destinations_sf, join_by)
   }
 }
 
@@ -156,11 +156,11 @@ road_to_graph <- function(road_sf, geom_column, allpoints = T,  area_id = NULL,
                           weighted_graph = F, speed_limit_column = NULL, direction_column = NULL,
                           direction_lookup = list(c("forward","opposite", "both"), c("F","T","B"))){
   
-  ##### 1. Check function arguments #####################################################################################
+  ##### 1. Check inputs #################################################################################################
   
-  check_road_to_graph(road_sf, geom_column, allpoints, area_id, weighted_graph, speed_limit_column, direction_column, direction_lookup)
+  .check_road_to_graph(road_sf, geom_column, allpoints, area_id, weighted_graph, speed_limit_column, direction_column, direction_lookup)
   
-  ##### 2. Edge list functions ###########################################################################################
+  ##### 2. Edge list functions ##########################################################################################
   
   edge_list_endpoints <- function(coords){
     n <- nrow(coords)
@@ -178,7 +178,7 @@ road_to_graph <- function(road_sf, geom_column, allpoints = T,  area_id = NULL,
     cbind(coords[-n, 1], coords[-n, 2], coords[-1, 1], coords[-1, 2])
   }
   
-  ##### 3. Build edge list ###############################################################################################
+  ##### 3. Build edge list ##############################################################################################
   
   if (is.null(direction_column)){
     if (! allpoints){
@@ -246,7 +246,11 @@ is_connected <- function(road_sf, geom_column, allpoints = T, area_id = NULL, co
     return(unique(E(G)$id))
   }
   
-  ##### 2. Main Function ################################################################################################
+  ##### 2. Check inputs #################################################################################################
+  
+  .check_is_connected(road_sf, geom_column, allpoints, area_id)
+  
+  ##### 3. Main Function ################################################################################################
   
   if (!is.null(area_id)){
     road_graph <- road_to_graph(road_sf = road_sf, geom_column = geom_column, allpoints = allpoints, area_id = area_id)
@@ -296,7 +300,7 @@ shortest_route_cost <- function(origins_sf, destinations_sf, road_graph, geom_co
   
   ##### 2. Check inputs #################################################################################################
   
-  check_shortest_route(origins_sf, destinations_sf, geom_column, road_graph, lookup_table, join_by)
+  .check_shortest_route(origins_sf, destinations_sf, geom_column, road_graph, lookup_table, join_by)
   
   if (nrow(origins_sf) > nrow(destinations_sf) & !is_directed(road_graph) & !is.null(lookup_table)){
     origin_points <- destinations_sf
