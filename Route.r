@@ -85,8 +85,9 @@ check_road_to_graph <- function(road_sf, geom_column, allpoints, area_id, weight
   if (!is.null(direction_column)){
     if (! direction_column %in% names(road_sf)) stop(paste("the column", direction_column, "was not found in road_sf"))
     check_values(road_sf, speed_limit_column)
-    if (! length(direction_lookup[[1]]) == 3 | ! length(direction_lookup[[2]]) == 3) stop("provide three values for each vector direction_lookup list")
-    if (! c("forward","opposite", "both") %in% direction_lookup[[1]]) stop("only three values are expected in the first vector of direction_lookup: forward, opposite and both")
+    if (! length(direction_lookup[[1]]) == 3) stop("provide three values for the first vector in the direction_lookup list")
+    if (! length(direction_lookup[[2]]) == 3) stop("provide three values for the second vector in the direction_lookup list")
+    if (! all(c("forward","opposite", "both") %in% direction_lookup[[1]])) stop("the only values expected in the first vector of direction_lookup are: forward, opposite and both")
   }
 }
 
