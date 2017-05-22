@@ -2,7 +2,7 @@
 
 The script provides functions to create a graph representation of a network of lines, to clean the network by identifying the self-connected line segments and to calculate the shortest path cost either in kilometres or minutes.
 
-### Function 1: road_to_graph
+### Function 1: lines_to_graph
 
 Description: This function is used to create a graph representation of a network of lines. The graph can be directed or undirected, weighted by the length of the linestrings (in kilometres) or weighted by the travel time (in minutes). Optionally the graph can have a character attribute that identifies the polygon boundaries that intersect or contain the linestrings of the network.
 
@@ -10,11 +10,11 @@ Description: This function is used to create a graph representation of a network
 
 - lines_sf: An object of class 'sf'.
 - geom_column: Character, the name of the geometry column, the column itself should be of class 'sfc_linestring' and in a projected reference system.
-- allpoints: Boolean (default value is True), if True all the points of the linestrings are used to create the graph representation of the road network, if False only the endpoints are used. If the graph will be used as input for the shortest_route_cost function you should want to set allpoints equal to True.
-- area_id: Character (default NULL), column name of the road_sf dataset, the values of the column can be either numeric or character and will be used as graph attribute. In the case of a study area consisting of unconnected subareas the column values should identify the subareas that the linestrings of the road netwrok intersect with. It can be used by the is_connected function.
-- weighted_graph: Boolean (default is False), if True the length (in kilometres) of the linestrings of the road network is used as graph attribute.
-- speed_limit_column: Character (default NULL), column name of the road_sf dataset. The column should provide the speed limits of the lines network in kilometers/hour.
-- direction_column: Character (default NULL), column name of the road_sf dataset. The column should provide the direction of traffic as character.
+- allpoints: Boolean (default value is True), if True all the points of the linestrings are used to create the graph representation of the lines network, if False only the endpoints are used. If the graph will be used as input for the shortest_route_cost function you should want to set allpoints equal to True.
+- area_id: Character (default NULL), column name of the lines_sf dataset, the values of the column can be either numeric or character and will be used as graph attribute. In the case of a study area consisting of unconnected subareas the column values should identify the subareas that the linestrings of the road netwrok intersect with. It can be used by the is_connected function.
+- weighted_graph: Boolean (default is False), if True the length (in kilometres) of the linestrings of the lines network is used as graph attribute.
+- speed_limit_column: Character (default NULL), column name of the lines_sf dataset. The column should provide the speed limits of the lines network in kilometers/hour.
+- direction_column: Character (default NULL), column name of the lines_sf dataset. The column should provide the direction of traffic as character.
 - direction_lookup: list object, (default list(c("forward","opposite", "both"), c("F","T","B")) ). The characters of the first vector of the list should always be  "forward", "opposite" and "both", the characters of the second vector represent the corresponding values of the direction_column that indicate traffic direction. The default values "F","T","B" are used by the OpenStreetMap road network.
 
 Returns: Object of class 'igraph'
@@ -37,11 +37,11 @@ Returns: A boolean vector, True denotes connected, False denotes not connected.
 
 Description: Function to calculate the cost of the shortest path between unique origin points or groups of origin points and unique destination points or groups of destination points. The cost can be either distance (kilometres) or time (minutes).
 
-8 arguments: origins_sf (required), destinations_sf (required), road_graph (required), geom_column (required), id_column (required), join_by (not required), lookup_table (not required), cores_nr (not required).
+8 arguments: origins_sf (required), destinations_sf (required), lines_graph (required), geom_column (required), id_column (required), join_by (not required), lookup_table (not required), cores_nr (not required).
 
 - origins_sf: Origin points object of class 'sf'.
 - destinations_sf: Destination points object of class 'sf'.
-- road_graph: Graph object of class 'igraph' created using the road_to_graph function.
+- lines_graph: Graph object of class 'igraph' created using the lines_to_graph function.
 - geom_column: Character, name of column in both origins_sf and destinations_sf. The geometry columns for both datasets should be of class 'sfc_Point', in a projected reference system. Obviously the same reference system should be used by the road network, origins_sf and destinations_sf.
 - id_column: Character, name of column in origins_sf and destinations_sf with id values for each point. If the id values are unique, the shortest route cost will be returned for each point, if there are duplicate id values the minimum cost will be returned for each unique id.
 - join_by: Character (defualt NULL), name of column in origins_sf and destinations_sf. If a join_by column is not provided all possible (cartesian product) shortest routes will be calculated between each unique id in origins_sf and each unique id in destinations_sf. The join_by argument can be useful if for example you want to calculate the shortest route cost between origins and destinations that are within the same administrative boundaries. The values in the join_by column will represent those administrative boundaries. The advantages of using the join_by argument are shorter running times and smaller output object.
