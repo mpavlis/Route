@@ -5,7 +5,7 @@
 # Author: Michalis Pavlis                                                                                               #
 # Licence: MIT                                                                                                          #
 #                                                                                                                       #
-# lines_to_graph: Function to create a graph representation (directed, undirected) of the lines network                  #
+# lines_to_graph: Function to create a graph representation (directed, undirected) of the lines network                 #
 #                                                                                                                       #
 # is_connected: Function to clean the line network by identifying the self-connected line segments                      #
 #                                                                                                                       #
@@ -304,7 +304,7 @@ shortest_route_cost <- function(origins_sf, destinations_sf, lines_graph, geom_c
   
   .check_shortest_route(origins_sf, destinations_sf, geom_column, id_column, lines_graph, lookup_table, join_by)
   
-  if (nrow(origins_sf) > nrow(destinations_sf) & !is_directed(lines_graph) & !is.null(lookup_table)){
+  if (nrow(origins_sf) > nrow(destinations_sf) & !is_directed(lines_graph) & is.null(lookup_table)){
     origin_points <- destinations_sf
     destination_points <- origins_sf
   } else {
@@ -345,7 +345,7 @@ shortest_route_cost <- function(origins_sf, destinations_sf, lines_graph, geom_c
   setkeyv(out_DT, c("origins_id", "destinations_id"))
   out_DT[, cost := calc_path(origins_id, destinations_id), by = origins_id]
   
-  if (nrow(origins_sf) > nrow(destinations_sf) & !is_directed(lines_graph) & !is.null(lookup_table)){
+  if (nrow(origins_sf) > nrow(destinations_sf) & !is_directed(lines_graph) & is.null(lookup_table)){
     setnames(out_DT, c("origins_id", "destinations_id"), c("destinations_id", "origins_id"))
   }
   
