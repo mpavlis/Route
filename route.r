@@ -277,7 +277,7 @@ shortest_route_cost <- function(origins_sf, destinations_sf, lines_graph, geom_c
   
   ##### 1. Function #####################################################################################################
   
-  calc_path <- function(origins_id, destinations_id){
+  calc_cost <- function(origins_id, destinations_id){
     
     o_node_ids <- origin_points[.(unique(origins_id)), .(get(id_column), origins_node_id), on = id_column, allow.cartesian = T]
     setnames(o_node_ids, 1, id_column)
@@ -343,7 +343,7 @@ shortest_route_cost <- function(origins_sf, destinations_sf, lines_graph, geom_c
   
   setnames(out_DT, 1:2, c("origins_id", "destinations_id"))
   setkeyv(out_DT, c("origins_id", "destinations_id"))
-  out_DT[, cost := calc_path(origins_id, destinations_id), by = origins_id]
+  out_DT[, cost := calc_cost(origins_id, destinations_id), by = origins_id]
   
   if (nrow(origins_sf) > nrow(destinations_sf) & !is_directed(lines_graph) & is.null(lookup_table)){
     setnames(out_DT, c("origins_id", "destinations_id"), c("destinations_id", "origins_id"))
