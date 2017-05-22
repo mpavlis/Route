@@ -5,7 +5,7 @@
 # Author: Michalis Pavlis                                                                                               #
 # Licence: MIT                                                                                                          #
 #                                                                                                                       #
-# road_to_graph: Function to create a graph representation (directed, undirected) of the lines network                  #
+# lines_to_graph: Function to create a graph representation (directed, undirected) of the lines network                  #
 #                                                                                                                       #
 # is_connected: Function to clean the line network by identifying the self-connected line segments                      #
 #                                                                                                                       #
@@ -149,7 +149,7 @@ library(parallel)
 }
 
 #########################################################################################################################
-#                                      Create graph from road network                                                   #
+#                                      Create graph from lines network                                                  #
 #########################################################################################################################
 
 lines_to_graph <- function(lines_sf, geom_column, allpoints = T,  area_id = NULL,
