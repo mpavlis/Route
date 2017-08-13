@@ -62,7 +62,7 @@ library(parallel)
   
   if (!is.null(area_id)){
     if (! area_id %in% names(lines_sf)) stop(paste("the column", area_id, "was not found in lines_sf"))
-    check_values(lines_sf, area_id)
+    .check_values(lines_sf, area_id)
   } 
   
 }
